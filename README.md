@@ -1,10 +1,10 @@
-# PowerShell Active Response Template
+# PowerShell Defender Scan Template
 
 This repository serves as a template for creating PowerShell-based active response scripts for security automation and incident response. The template provides a standardized structure and common functions to ensure consistent logging, error handling, and execution flow across all active response scripts.
 
 ## Overview
 
-The `automation-template.ps1` file is the foundation for all PowerShell active response scripts. It provides a robust framework with built-in logging, error handling, and standardized output formatting suitable for integration with security orchestration platforms, SIEM systems, and incident response workflows.
+The `defenderscan.ps1` file is the foundation for PowerShell active response scripts that trigger and monitor Windows Defender scans (Quick, Full, or Custom). It provides a robust framework with built-in logging, error handling, and standardized output formatting suitable for integration with security orchestration platforms, SIEM systems, and incident response workflows.
 
 ## Template Structure
 
@@ -22,28 +22,36 @@ The template includes the following essential components:
 
 ### Command Line Execution
 ```powershell
-.\automation-template.ps1 [-MaxWaitSeconds <int>] [-LogPath <string>] [-ARLog <string>]
+.\defenderscan.ps1 [-ScanType <menu|quick|full|custom>] [-Path <string>] [-MaxWaitSeconds <int>] [-LogPath <string>] [-ARLog <string>]
 ```
 
 ### Parameters
 
-| Parameter | Type | Default Value | Description |
-|-----------|------|---------------|-------------|
-| `MaxWaitSeconds` | int | 300 | Maximum execution time in seconds before timeout |
-| `LogPath` | string | `$env:TEMP\Generic-Automation.log` | Path for detailed execution logs |
-| `ARLog` | string | `C:\Program Files (x86)\ossec-agent\active-response\active-responses.log` | Path for active response JSON output |
+| Parameter        | Type   | Default Value                                                    | Description                                  |
+|------------------|--------|------------------------------------------------------------------|----------------------------------------------|
+| `ScanType`       | string | 'menu'                                                           | Type of scan: menu, quick, full, custom      |
+| `Path`           | string | (none)                                                           | Directory path for custom scan               |
+| `MaxWaitSeconds` | int    | 900                                                              | Maximum execution time in seconds before timeout |
+| `LogPath`        | string | `$env:TEMP\DefenderScan-script.log`                              | Path for execution logs                      |
+| `ARLog`          | string | `C:\Program Files (x86)\ossec-agent\active-response\active-responses.log` | Path for active response JSON output         |
 
 ### Example Invocations
 
 ```powershell
-# Basic execution with default parameters
-.\automation-template.ps1
+# Interactive menu
+.\defenderscan.ps1
 
-# Custom timeout and log paths
-.\automation-template.ps1 -MaxWaitSeconds 600 -LogPath "C:\Logs\my-script.log"
+# Quick scan
+.\defenderscan.ps1 -ScanType quick
+
+# Full scan with custom log path
+.\defenderscan.ps1 -ScanType full -LogPath "C:\Logs\DefenderScan.log"
+
+# Custom scan of a directory
+.\defenderscan.ps1 -ScanType custom -Path "C:\Users\Public\Downloads"
 
 # Integration with OSSEC/Wazuh active response
-.\automation-template.ps1 -ARLog "C:\ossec\active-responses.log"
+.\defenderscan.ps1 -ARLog "C:\ossec\active-responses.log"
 ```
 
 ## Template Functions
@@ -63,8 +71,8 @@ The template includes the following essential components:
 
 **Usage**:
 ```powershell
-Write-Log "Process started successfully" 'INFO'
-Write-Log "Configuration file not found" 'WARN'
+Write-Log "Launching FullScan path=C:\Users\Public\Downloads" 'INFO'
+Write-Log "Detected: Trojan:Win32/Emotet" 'WARN'
 Write-Log "Critical error occurred" 'ERROR'
 Write-Log "Debug information" 'DEBUG'
 ```
@@ -92,7 +100,7 @@ Write-Log "Debug information" 'DEBUG'
 
 ### 2. Execution Phase
 - Script start logging with timestamp
-- Main action logic execution (customizable section)
+- Main action logic execution (Defender scan and event monitoring)
 - Real-time logging of operations
 - Progress monitoring and timeout handling
 
@@ -117,10 +125,26 @@ All scripts output standardized JSON responses to the active response log:
 {
   "timestamp": "2025-07-18T10:30:45.123Z",
   "host": "HOSTNAME",
-  "action": "script_action_name",
-  "status": "success",
-  "result": "Action completed successfully",
-  "data": {}
+  "scan_type": "FullScan",
+  "target_path": "C:\\Users\\Public\\Downloads",
+  "items_scanned": 12345,
+  "threats_found": 2,
+  "detections": ["Trojan:Win32/Emotet", "PUA:Win32/SomeAdware"],
+  "status": "detections_found"
+}
+```
+
+### Clean Response
+```json
+{
+  "timestamp": "2025-07-18T10:30:45.123Z",
+  "host": "HOSTNAME",
+  "scan_type": "QuickScan",
+  "target_path": null,
+  "items_scanned": 12345,
+  "threats_found": 0,
+  "detections": [],
+  "status": "clean"
 }
 ```
 
@@ -129,16 +153,17 @@ All scripts output standardized JSON responses to the active response log:
 {
   "timestamp": "2025-07-18T10:30:45.123Z",
   "host": "HOSTNAME",
-  "action": "generic_error",
+  "scan_type": "CustomScan",
+  "target_path": "C:\\Invalid\\Path",
   "status": "error",
-  "error": "Detailed error message"
+  "error": "Path C:\\Invalid\\Path not found"
 }
 ```
 
 ## Implementation Guidelines
 
 ### 1. Customizing the Template
-1. Copy `automation-template.ps1` to your new script name
+1. Copy `defenderscan.ps1` to your new script name
 2. Replace the action logic section between the comment markers
 3. Update the action name in the JSON output
 4. Add any additional parameters as needed
@@ -170,15 +195,15 @@ All scripts output standardized JSON responses to the active response log:
 ## Troubleshooting
 
 ### Common Issues
-1. **Permission Errors**: Ensure script has write access to log paths
-2. **Timeout Issues**: Adjust `MaxWaitSeconds` parameter for long-running operations
+1. **Permission Errors**: Ensure script has write access to log paths and is run as Administrator for Defender operations
+2. **Timeout Issues**: Adjust `MaxWaitSeconds` parameter for long-running scans
 3. **Log Rotation**: Check disk space and file permissions for log directory
 4. **JSON Format**: Validate output against expected schema
 
 ### Debug Mode
 Enable verbose logging by running with `-Verbose` parameter:
 ```powershell
-.\automation-template.ps1 -Verbose
+.\defenderscan.ps1 -Verbose
 ```
 
 ## Contributing
@@ -239,13 +264,13 @@ Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0
 #### Option 2: Direct Download
 ```powershell
 # Download script directly
-Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/script-name.ps1" -OutFile "script-name.ps1"
+Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/defenderscan.ps1" -OutFile "defenderscan.ps1"
 ```
 
 #### Option 3: One-liner Execution
 ```powershell
 # Execute directly from URL (use with caution)
-Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/script-name.ps1" | Invoke-Expression
+Invoke-WebRequest -Uri "https://github.com/{owner}/{repo}/releases/download/v1.0.0/defenderscan.ps1" | Invoke-Expression
 ```
 
 ### Production Deployment
@@ -276,4 +301,4 @@ However, for environments requiring additional security or deployment simplifica
 
 ## License
 
-This template is provided as-is for security automation and incident response purposes.
+This template is provided as-is for security automation and incident
