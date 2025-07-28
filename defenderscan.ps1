@@ -134,6 +134,7 @@ try {
     action='defender_scan'
     status='error'
     error=$_.Exception.Message
+    copilot_soar = $true
   }
   $errorObj | ConvertTo-Json -Compress | Out-File -FilePath $ARLog -Encoding ascii -Width 2000
 } finally {
