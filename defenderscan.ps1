@@ -123,6 +123,7 @@ try {
     threats_found=$threats
     detections=$names
     status=$statusTag
+    copilot_action = $true
   }
   $logObj | ConvertTo-Json -Compress | Out-File -FilePath $ARLog -Encoding ascii -Width 2000
   Write-Log "JSON appended to $ARLog" 'INFO'
@@ -134,10 +135,11 @@ try {
     action='defender_scan'
     status='error'
     error=$_.Exception.Message
-    copilot_soar = $true
+    copilot_action = $true
   }
   $errorObj | ConvertTo-Json -Compress | Out-File -FilePath $ARLog -Encoding ascii -Width 2000
 } finally {
   $dur=[int]((Get-Date)-$runStart).TotalSeconds
   Write-Log "=== SCRIPT END : duration ${dur}s ==="
 }
+
