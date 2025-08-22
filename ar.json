@@ -1,5 +1,5 @@
 {
-  "active_response_name": "WINDOWS-DEFENDER-SCAN-ACTIVERESPONSE",
+  "copilot_action_name": "WINDOWS-DEFENDER-SCAN-ACTIVERESPONSE",
   "description": "Initiates a Windows Defender scan (Quick, Full, or Custom) and collects results including items scanned, detected threats, and detection names. Monitors Defender events in real-time and writes a JSON report summarizing the scan outcome.",
   "technology": "Windows",
   "icon": "windows",
