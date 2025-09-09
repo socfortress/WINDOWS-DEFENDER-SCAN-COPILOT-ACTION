@@ -8,40 +8,12 @@
       "name": "ScanType",
       "type": "string",
       "required": false,
-      "description": "Type of scan to perform. Options: 'menu' (interactive), 'quick', 'full', 'custom'. Defaults to 'menu'.",
-      "default": "menu",
-      "arg_position" : "1"
-    },
-    {
-      "name": "Path",
-      "type": "string",
-      "required": false,
-      "description": "Directory path to scan when using 'custom' ScanType. Ignored for other modes.",
-      "default": null
-    },
-    {
-      "name": "MaxWaitSeconds",
-      "type": "integer",
-      "required": false,
-      "description": "Maximum wait time in seconds for Defender events before timing out.",
-      "default": 900
-    },
-    {
-      "name": "LogPath",
-      "type": "string",
-      "required": false,
-      "description": "Path to the rotating human-readable script log.",
-      "default": "%TEMP%/DefenderScan-script.log"
-    },
-    {
-      "name": "ARLog",
-      "type": "string",
-      "required": false,
-      "description": "Active Response JSON log path. Overwrites existing content with scan results.",
-      "default": "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
+      "description": "Type of scan to perform. Options: 'quick', 'full'. Default: 'quick'.",
+      "default": "quick",
+      "arg_position": "1"
     }
   ],
-  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-DEFENDER-SCAN-COPILOT-ACTION/refs/heads/main/",
+  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-DEFENDER-SCAN-COPILOT-ACTION/refs/heads/main/defenderscan.ps1",
   "script_name": "defenderscan.ps1",
   "version": "1.0.0",
   "last_updated": "2025-08-22T00:00:00Z"
